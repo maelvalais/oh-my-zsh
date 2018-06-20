@@ -161,15 +161,16 @@ prompt_bzr() {
 }
 
 prompt_hg() {
+  HG=chg
   (( $+commands[hg] )) || return
-  local rev st branch
-  if $(hg id >/dev/null 2>&1); then
-    if $(hg prompt >/dev/null 2>&1); then
-      if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
+  local rev status
+  if $($HG id >/dev/null 2>&1); then
+    if $($HG prompt >/dev/null 2>&1); then
+      if [[ $($HG prompt "{status|unknown}") = "?" ]]; then
         # if files are not added
-        prompt_segment red white
+        prompt_segment yellow white
         st='±'
-      elif [[ -n $(hg prompt "{status|modified}") ]]; then
+      elif [[ -n $($HG prompt "{status|modified}") ]]; then
         # if any modification
         prompt_segment yellow black
         st='±'
@@ -177,21 +178,21 @@ prompt_hg() {
         # if working copy is clean
         prompt_segment green $CURRENT_FG
       fi
-      echo -n $(hg prompt "☿ {rev}@{branch}") $st
+      echo -n $($HG prompt "{rev}  {branch}") $st
     else
       st=""
-      rev=$(hg id -n 2>/dev/null | sed 's/[^-0-9]//g')
-      branch=$(hg id -b 2>/dev/null)
-      if `hg st | grep -q "^\?"`; then
-        prompt_segment red black
+      rev=$($HG id -n 2>/dev/null | sed 's/[^-0-9]//g')
+      branch=$($HG id -b 2>/dev/null)
+      if `$HG st | grep -q "^\?"`; then
+        prompt_segment yellow black
         st='±'
-      elif `hg st | grep -q "^[MA]"`; then
+      elif `$HG st | grep -q "^[MA]"`; then
         prompt_segment yellow black
         st='±'
       else
         prompt_segment green $CURRENT_FG
       fi
-      echo -n "☿ $rev@$branch" $st
+      echo -n "$rev  $branch" $st
     fi
   fi
 }
